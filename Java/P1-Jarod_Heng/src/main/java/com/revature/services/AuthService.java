@@ -1,5 +1,6 @@
 package com.revature.services;
 
+import com.revature.exceptions.UsernameNotUniqueException;
 import com.revature.models.User;
 
 import java.util.Optional;
@@ -28,6 +29,13 @@ public class AuthService {
      * </ul>
      */
     public User login(String username, String password) {
+        UserService userService = new UserService();
+        if(userService.getByUsername(username).isPresent()) {
+            // the username exists
+        } else {
+            // the username does not exist in the database
+            // throw new UsernameNotFoundException();
+        }
         return null;
     }
 
