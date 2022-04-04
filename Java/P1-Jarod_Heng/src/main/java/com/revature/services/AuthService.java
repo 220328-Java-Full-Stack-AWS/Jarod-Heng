@@ -1,5 +1,7 @@
 package com.revature.services;
 
+import com.revature.exceptions.NewUserHasNonZeroIdException;
+import com.revature.exceptions.RegistrationUnsuccessfulException;
 import com.revature.exceptions.UsernameNotUniqueException;
 import com.revature.models.User;
 
@@ -53,7 +55,25 @@ public class AuthService {
      * After registration, the id will be a positive integer.
      */
     public User register(User userToBeRegistered) {
-        return null;
+        User newUser = userToBeRegistered;
+
+        boolean usernameIsUnique = false;
+        // userToBeRegistered.getUsername() check uniqueness through DB
+        // if the username isnt unique, throw exception
+        if (!usernameIsUnique)
+            throw new UsernameNotUniqueException();
+
+        // if the given initial ID is not 0, throw exception
+        if (userToBeRegistered.getId() != 0)
+            throw new NewUserHasNonZeroIdException();
+
+        // now we know the username is unique, and we can register the user and get a newID
+
+        // if registration was unsuccessful,
+        // throw new RegistrationUnsuccessfulException();
+
+        // after successful registration, return the user object
+        return newUser;
     }
 
     /**

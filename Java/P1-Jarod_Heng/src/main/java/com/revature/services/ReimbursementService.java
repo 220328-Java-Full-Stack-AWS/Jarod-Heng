@@ -41,6 +41,9 @@ public class ReimbursementService {
      * After processing, the reimbursement will have its status changed to either APPROVED or DENIED.
      */
     public Reimbursement process(Reimbursement unprocessedReimbursement, Status finalStatus, User resolver) {
+        Reimbursement processedReimbursement = unprocessedReimbursement;
+
+
         return null;
     }
 
