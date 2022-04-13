@@ -18,6 +18,27 @@ public class ConnectionFactory {
     private Connection connection;
     private ConnectionFactory() {
         super();
+    }
+
+    /**
+     * <p>This method follows the Singleton Design Pattern to restrict this class to only having 1 instance.</p>
+     * <p>It is invoked via:</p>
+     *
+     * {@code ConnectionFactory.getInstance()}
+     */
+    public static ConnectionFactory getInstance() {
+        if(instance == null) {
+            instance = new ConnectionFactory();
+        }
+
+        return instance;
+    }
+
+    /**
+     * <p>The {@link ConnectionFactory#getConnection()} method is responsible for leveraging a specific Database Driver to obtain an instance of the {@link java.sql.Connection} interface.</p>
+     * <p>Typically, this is accomplished via the use of the {@link java.sql.DriverManager} class.</p>
+     */
+    public Connection getConnection() {
         /*
         jdbc:postgresql://hostname:port/databaseName//?currentSchema=schemaName
         This is the string we need to use to connect to our database. We will build this string with each of the
@@ -55,27 +76,6 @@ public class ConnectionFactory {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    /**
-     * <p>This method follows the Singleton Design Pattern to restrict this class to only having 1 instance.</p>
-     * <p>It is invoked via:</p>
-     *
-     * {@code ConnectionFactory.getInstance()}
-     */
-    public static ConnectionFactory getInstance() {
-        if(instance == null) {
-            instance = new ConnectionFactory();
-        }
-
-        return instance;
-    }
-
-    /**
-     * <p>The {@link ConnectionFactory#getConnection()} method is responsible for leveraging a specific Database Driver to obtain an instance of the {@link java.sql.Connection} interface.</p>
-     * <p>Typically, this is accomplished via the use of the {@link java.sql.DriverManager} class.</p>
-     */
-    public Connection getConnection() {
         return connection;
     }
 
