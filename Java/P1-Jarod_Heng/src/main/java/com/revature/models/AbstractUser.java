@@ -21,10 +21,10 @@ import java.util.Objects;
 
 public class AbstractUser {
 
-    private int id;
-    private String username;
-    private String password;
-    private Role role;
+    protected int id;
+    protected String username;
+    protected String password;
+    protected Role role;
 
     public AbstractUser() {
         super();

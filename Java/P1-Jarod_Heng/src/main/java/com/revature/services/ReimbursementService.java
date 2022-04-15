@@ -3,6 +3,7 @@ package com.revature.services;
 import com.revature.models.Reimbursement;
 import com.revature.models.Status;
 import com.revature.models.User;
+import com.revature.repositories.ReimbursementDAO;
 
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,8 @@ import java.util.List;
  * </ul>
  */
 public class ReimbursementService {
+
+    ReimbursementDAO rdao = new ReimbursementDAO();
 
     /**
      * <ul>

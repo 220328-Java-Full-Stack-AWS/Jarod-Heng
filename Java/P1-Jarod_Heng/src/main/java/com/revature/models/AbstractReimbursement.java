@@ -21,11 +21,11 @@ import java.util.Objects;
  */
 public class AbstractReimbursement {
 
-    private int id;
-    private Status status;
-    private User author;
-    private User resolver;
-    private double amount;
+    protected int id;
+    protected Status status;
+    protected User author;
+    protected User resolver;
+    protected double amount;
 
     public AbstractReimbursement() {
         super();
