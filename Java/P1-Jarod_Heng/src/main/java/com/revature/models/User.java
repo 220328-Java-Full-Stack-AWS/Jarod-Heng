@@ -1,7 +1,5 @@
 package com.revature.models;
 
-import java.util.Objects;
-
 /**
  * This concrete User class can include additional fields that can be used for
  * extended functionality of the ERS application.
@@ -21,7 +19,6 @@ public class User extends AbstractUser {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private String address;
 
     public User() {
         super();
@@ -40,7 +37,6 @@ public class User extends AbstractUser {
         this.lastName = lName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.address = address;
     }
 
     /* Getters and Setters */
@@ -77,13 +73,6 @@ public class User extends AbstractUser {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
     /* if needed, overload the equals method to compare all fields (might not be necessary)
     @Override
     public boolean equals(Object o) {
@@ -96,7 +85,7 @@ public class User extends AbstractUser {
 
     @Override
     public String toString() {
-        return "AbstractUser{" +
+        return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
@@ -104,7 +93,7 @@ public class User extends AbstractUser {
                 ", lastname='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", phonenum=" + phoneNumber +
-                ", address=" + address +
+
                 '}';
     }
 }

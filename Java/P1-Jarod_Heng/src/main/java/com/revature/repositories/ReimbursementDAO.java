@@ -2,16 +2,12 @@ package com.revature.repositories;
 
 import com.revature.models.Reimbursement;
 import com.revature.models.Status;
-import com.revature.models.User;
 import com.revature.services.UserService;
 import com.revature.util.ConnectionFactory;
 
 import java.io.InputStream;
-import java.sql.Connection;
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.*;
 
 public class ReimbursementDAO {
@@ -25,8 +21,7 @@ public class ReimbursementDAO {
      * creation_date
      * resolution_date
      */
-
-    private String reimbursementsTableName = "reimbursements_db";
+    private String RT_NAME = "reimbursements_db";
     private static String RT_ID = "reimbursement_id";
     private static String RT_STATUS = "status";
     private static String RT_AUTHOR = "author_username";
@@ -39,23 +34,63 @@ public class ReimbursementDAO {
 
     protected UserService userService = new UserService();
 
+    /*******************************************************************
+     * Constructors
+     ******************************************************************/
     public ReimbursementDAO(String reimbursementsTableName) {
-        this.reimbursementsTableName = reimbursementsTableName;
+        this();
+        // OVERRIDE THE PROPERTIES FILE FOR THE TABLE NAME
+        this.RT_NAME = reimbursementsTableName;
     }
 
     public ReimbursementDAO() {
         populateDBProperties();
     }
 
+    /*******************************************************************
+     * Methods: CRUD
+     * Create/Read/Update/Delete
+     ******************************************************************/
+    // CREATE Method
+    public Reimbursement createReimbursement(Reimbursement rb) {
+        String sql = "INSERT INTO " + RT_NAME
+                                    + " (" + RT_ID + ","  + RT_STATUS + ","  + RT_AUTHOR + ","
+                                    + "," + RT_RESOLVER + "," + RT_AMOUNT + "," + RT_DESCRIPTION + ","
+                                    + RT_CREATIONDATE + "," + RT_RESOLUTIONDATE + ","
+                                    +") VALUES (?,?,?,?,?,?,?,?)";
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setInt(1, rb.getId());
+            pstmt.setString(2, rb.getStatus().toString());
+            pstmt.setString(3, rb.getAuthor().getUsername());
+            pstmt.setString(4, rb.getResolver().getUsername());
+            pstmt.setDouble(5, rb.getAmount());
+            pstmt.setString(6, rb.getDescription());
+            pstmt.setString(7, rb.getCreationDate().toString());
+            pstmt.setString(8, rb.getResolutionDate().toString());
+            pstmt.executeUpdate();
+
+            ResultSet keys = pstmt.getGeneratedKeys();
+            if(keys.next()) {
+                int key = keys.getInt(1);
+                rb.setId(key);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return rb;
+    }
+
+    // READ Methods
+
     /**
      * Should retrieve a Reimbursement from the DB with the corresponding id or an empty optional if there is no match.
      */
     public Optional<Reimbursement> getById(int id) {
-        Reimbursement reimbursement;
+        Reimbursement reimbursement = new Reimbursement();
         try {
-            String SQL = "SELECT * FROM " + reimbursementsTableName + " WHERE " + RT_ID + " = ?";
-            reimbursement = new Reimbursement();
-
+            String SQL = "SELECT * FROM " + RT_NAME + " WHERE " + RT_ID + " = ?";
             Connection conn = ConnectionFactory.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setInt(1, id);
@@ -74,7 +109,6 @@ public class ReimbursementDAO {
                 reimbursement.setDescription(rs.getString(RT_DESCRIPTION));
                 reimbursement.setCreationDate(Date.valueOf(rs.getString(RT_CREATIONDATE)));
                 reimbursement.setResolutionDate(Date.valueOf(rs.getString(RT_RESOLUTIONDATE)));
-
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -86,40 +120,21 @@ public class ReimbursementDAO {
     /**
      * Should retrieve a List of Reimbursements from the DB with the corresponding Status or an empty List if there are no matches.
      */
-    //TODO: implement
     public List<Reimbursement> getByStatus(Status status) {
-        List<Reimbursement> reimbursements = new ArrayList<>();
-
-
-
-        if (reimbursements.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return reimbursements;
-    }
-
-    /**
-     * Should retrieve a List of ALL Reimbursements from the DB or an empty List if there are none.
-     */
-    public List<Reimbursement> getAll() {
-        List<Reimbursement> list = new LinkedList<>();
+        List<Reimbursement> reimbursementList = new ArrayList<>();
         try {
             // TODO: change test_table to name of table in DB
-            String SQL = "SELECT * FROM " + reimbursementsTableName;
+            String SQL = "SELECT * FROM " + RT_NAME + " WHERE " + RT_STATUS + " = ?";
             Connection conn = ConnectionFactory.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(SQL);
 
             ResultSet rs = pstmt.executeQuery();
 
-            /**
-             * int id, Status status, User author, User resolver, double amount,
-             * String description, Date creationDate, Date resolutionDate, String receiptImageURL)
-             */
             while(rs.next()) {
                 Reimbursement rb = new Reimbursement();
                 rb.setId(rs.getInt("reimbursement_id"));
                 // enum
-                Status status = Status.valueOf(rs.getString("status").toUpperCase());
+                Status rbstatus = Status.valueOf(rs.getString("status").toUpperCase());
                 rb.setStatus(status);
 
                 // using the UserService class, we can get the user by the stored username.
@@ -132,6 +147,50 @@ public class ReimbursementDAO {
                 rb.setResolutionDate(rs.getDate("resolutionDate"));
                 // rb.setReceiptImageURL(rs.getString("receiptImageURL"));
 
+                reimbursementList.add(rb);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return reimbursementList;
+    }
+
+    /**
+     * Should retrieve a List of ALL Reimbursements from the DB or an empty List if there are none.
+     */
+    public List<Reimbursement> getAll() {
+        List<Reimbursement> list = new ArrayList<>();
+        try {
+            // TODO: change test_table to name of table in DB
+            String SQL = "SELECT * FROM " + RT_NAME;
+            Connection conn = ConnectionFactory.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+
+            ResultSet rs = pstmt.executeQuery();
+
+            /**
+             * int id, Status status, User author, User resolver, double amount,
+             * String description, Date creationDate, Date resolutionDate, String receiptImageURL)
+             */
+            while(rs.next()) {
+                Reimbursement rb = new Reimbursement();
+                rb.setId(rs.getInt(RT_ID));
+                // enum
+                Status rstatus = Status.valueOf(rs.getString(RT_STATUS).toUpperCase());
+                rb.setStatus(rstatus);
+
+                // using the UserService class, we can get the user by the stored username.
+                rb.setAuthor(userService.getByUsername(rs.getString(RT_AUTHOR)).get());
+                rb.setResolver(userService.getByUsername(rs.getString(RT_RESOLVER)).get());
+
+                rb.setAmount(rs.getDouble(RT_AMOUNT));
+                rb.setDescription(rs.getString(RT_DESCRIPTION));
+                rb.setCreationDate(rs.getDate(RT_CREATIONDATE));
+                rb.setResolutionDate(rs.getDate(RT_RESOLUTIONDATE));
+                // rb.setReceiptImageURL(rs.getString("receiptImageURL"));
+
                 list.add(rb);
             }
 
@@ -141,6 +200,9 @@ public class ReimbursementDAO {
 
         return list;
     }
+
+    // UPDATE Methods
+
     /**
      * <ul>
      *     <li>Should Update an existing Reimbursement record in the DB with the provided information.</li>
@@ -152,7 +214,7 @@ public class ReimbursementDAO {
         Optional<Reimbursement> processedReimbursement;
         // TODO: verify reimbursement doesnt have null values?
         String sql =
-                "UPDATE " + reimbursementsTableName + " SET " +
+                "UPDATE " + RT_NAME + " SET " +
                 RT_ID + " = ?, " + //1
                 RT_STATUS + " = ?, " + //2
                 RT_AUTHOR + " = ?, " + //3
@@ -196,12 +258,13 @@ public class ReimbursementDAO {
         }
     }
 
+    // DELETE Methods
     /*
      * returns true if successful, false if failed to delete
      *
      */
     public boolean delete(int id) {
-        String sql = "DELETE FROM " + reimbursementsTableName + " WHERE " + RT_ID + " = ?";
+        String sql = "DELETE FROM " + RT_NAME + " WHERE " + RT_ID + " = ?";
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
             pstmt.setInt(1, id);
@@ -211,24 +274,18 @@ public class ReimbursementDAO {
             e.printStackTrace();
             return false;
         }
-
     }
 
-    // TODO: Implement
     public boolean delete(Reimbursement reimbursement) {
-        return false;
+        return delete(reimbursement.getId());
     }
 
 
-
-    public String getReimbursementsTableName() {
-        return reimbursementsTableName;
-    }
-
-    public void setReimbursementsTableName(String reimbursementsTableName) {
-        this.reimbursementsTableName = reimbursementsTableName;
-    }
-
+    /********************
+     * Helper functions
+     *
+     ********************/
+    // Method to read schema from reimbursements_table.properties
     private void populateDBProperties() {
         Properties props = new Properties();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -241,6 +298,7 @@ public class ReimbursementDAO {
             // just use the defaults
             return;
         }
+        RT_NAME = props.getProperty("RT_NAME");
         RT_ID = props.getProperty("RT_ID");
         RT_STATUS = props.getProperty("RT_STATUS");
         RT_AUTHOR = props.getProperty("RT_AUTHOR");
