@@ -38,7 +38,7 @@ public class UserDAO {
     public UserDAO(String userTableName) {
         this();
         // OVERRIDE THE PROPERTIES FILE FOR THE TABLE NAME
-        this.UT_TABLENAME = userTableName;
+        this.createUserTable(userTableName);
     }
 
     public UserDAO() {
@@ -58,8 +58,6 @@ public class UserDAO {
                 + "," + UT_ROLE + "," + UT_FIRSTNAME + "," + UT_LASTNAME + ","
                 + UT_EMAIL + "," + UT_PHONE + ","
                 +") VALUES (?,?,?,?,?,?,?)";
-
-        
 
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
@@ -187,8 +185,6 @@ public class UserDAO {
         }
     }
 
-
-
     // DELETE
     public boolean delete(int id) {
         String sql = "DELETE FROM " + UT_TABLENAME + " WHERE " + UT_ID + " = ?";
@@ -246,8 +242,16 @@ public class UserDAO {
 
     // Returns true if the table was created or already exists
     private boolean createUserTable(String tableName) {
-        // TODO: Fix this
-        String sql = "";
+        UT_TABLENAME = tableName;
+        String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
+                        UT_ID + " serial PRIMARY KEY," +
+                        UT_USERNAME + " varchar(50) NOT NULL unique," +
+                        UT_PASSWORD + " varchar(50) NOT NULL," +
+	                    UT_ROLE + " varchar(50), NOT NULL" +
+	                    UT_FIRSTNAME + " varchar(50)," +
+	                    UT_LASTNAME + " varchar(50)," +
+	                    UT_EMAIL + " varchar(100) NOT NULL unique," +
+	                    UT_PHONE + " varchar(16) );";
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
             pstmt.setString(1, UT_TABLENAME);

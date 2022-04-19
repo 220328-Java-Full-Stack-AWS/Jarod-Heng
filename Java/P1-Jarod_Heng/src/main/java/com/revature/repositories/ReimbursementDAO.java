@@ -40,7 +40,7 @@ public class ReimbursementDAO {
     public ReimbursementDAO(String reimbursementsTableName) {
         this();
         // OVERRIDE THE PROPERTIES FILE FOR THE TABLE NAME
-        this.RT_NAME = reimbursementsTableName;
+        this.createReimbursementTable(reimbursementsTableName);
     }
 
     public ReimbursementDAO() {
@@ -54,10 +54,10 @@ public class ReimbursementDAO {
     // CREATE Method
     public Reimbursement createReimbursement(Reimbursement rb) {
         String sql = "INSERT INTO " + RT_NAME
-                                    + " (" + RT_ID + ","  + RT_STATUS + ","  + RT_AUTHOR + ","
+                                    + " (" + RT_STATUS + ","  + RT_AUTHOR + ","
                                     + "," + RT_RESOLVER + "," + RT_AMOUNT + "," + RT_DESCRIPTION + ","
                                     + RT_CREATIONDATE + "," + RT_RESOLUTIONDATE + ","
-                                    +") VALUES (?,?,?,?,?,?,?,?)";
+                                    +") VALUES (?,?,?,?,?,?,?)";
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, rb.getId());
@@ -285,7 +285,7 @@ public class ReimbursementDAO {
      *
      ********************/
     // Method to read schema from reimbursements_table.properties
-    private void populateDBProperties() {
+    private boolean populateDBProperties() {
         Properties props = new Properties();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         InputStream input = loader.getResourceAsStream("reimbursements_table.properties");
@@ -295,7 +295,7 @@ public class ReimbursementDAO {
             e.printStackTrace();
             System.out.println("Using defaults due to properties load failure.");
             // just use the defaults
-            return;
+            return false;
         }
         RT_NAME = props.getProperty("RT_NAME");
         RT_ID = props.getProperty("RT_ID");
@@ -307,5 +307,29 @@ public class ReimbursementDAO {
         RT_CREATIONDATE = props.getProperty("RT_CREATIONDATE");
         RT_RESOLUTIONDATE = props.getProperty("RT_RESOLUTIONDATE");
         RT_RESOLUTIONDATE = props.getProperty("RT_IMAGE");
+        return true;
+    }
+
+    // Returns true if the table was created or already exists
+    private boolean createReimbursementTable(String tableName) {
+        this.RT_NAME = tableName;
+        String sql = "CREATE TABLE IF NOT EXISTS reimbursements_db(" +
+                        RT_ID + " serial PRIMARY KEY," +
+                        RT_STATUS + " varchar(20) NOT NULL," +
+                        RT_AUTHOR + " varchar(50) NOT NULL," +
+	                    RT_RESOLVER + " varchar(50)," +
+	                    RT_AMOUNT + " numeric NOT NULL," +
+	                    RT_DESCRIPTION + " varchar(500)," +
+	                    RT_CREATIONDATE + " varchar(50) NOT NULL," +
+	                    RT_RESOLUTIONDATE + " varchar(50) );";
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            pstmt.setString(1, RT_NAME);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
