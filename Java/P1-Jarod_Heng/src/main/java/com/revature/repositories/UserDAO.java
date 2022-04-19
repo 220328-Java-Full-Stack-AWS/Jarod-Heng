@@ -1,5 +1,7 @@
 package com.revature.repositories;
 
+import com.revature.models.Reimbursement;
+import com.revature.models.Role;
 import com.revature.models.User;
 import com.revature.util.ConnectionFactory;
 
@@ -52,10 +54,13 @@ public class UserDAO {
      */
     public User create(User userToBeRegistered) {
         String sql = "INSERT INTO " + UT_TABLENAME
-                + " (" + UT_ID + ","  + UT_USERNAME + ","  + UT_PASSWORD + ","
+                + " (" + UT_USERNAME + ","  + UT_PASSWORD + ","
                 + "," + UT_ROLE + "," + UT_FIRSTNAME + "," + UT_LASTNAME + ","
                 + UT_EMAIL + "," + UT_PHONE + ","
-                +") VALUES (?,?,?,?,?,?,?,?)";
+                +") VALUES (?,?,?,?,?,?,?)";
+
+        
+
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             pstmt.setInt(1, userToBeRegistered.getId());
@@ -83,33 +88,138 @@ public class UserDAO {
      * Should retrieve a User from the DB with the corresponding username or an empty optional if there is no match.
      */
     public Optional<User> getByUsername(String username) {
-        User model = new User();
+        User user = new User();
         try {
-            String SQL = "SELECT * FROM users_db WHERE username = ?";
+            String SQL = "SELECT * FROM " + UT_TABLENAME + " WHERE " + UT_USERNAME + " = ?";
             Connection conn = ConnectionFactory.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setString(1, username);
-
             ResultSet rs = pstmt.executeQuery();
 
-
-//            while (rs.next()) {
-//                model.setItemId(rs.getInt("item_id"));
-//                model.setTask(rs.getString("task"));
-//                model.setDate(rs.getString("due"));
-//                model.setCompleted(rs.getBoolean("completed"));
-//                model.setUserId(rs.getInt("user_id"));
-//            }
+            while (rs.next()) {
+                user.setId(rs.getInt(UT_ID));
+                user.setUsername(rs.getString(UT_USERNAME));
+                user.setPassword(rs.getString(UT_PASSWORD));
+                user.setRole(Role.valueOf(rs.getString(UT_ROLE)));
+                user.setFirstName(rs.getString(UT_FIRSTNAME));
+                user.setLastName(rs.getString(UT_LASTNAME));
+                user.setEmail(rs.getString(UT_EMAIL));
+                user.setPhoneNumber(rs.getString(UT_PHONE));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
+            return Optional.empty();
         }
-//        return model;
-        return Optional.empty();
+        return Optional.of(user);
+    }
+
+    public Optional<User> getByID(int id) {
+        User user = new User();
+        try {
+            String SQL = "SELECT * FROM " + UT_TABLENAME + " WHERE " + UT_ID + " = ?";
+            Connection conn = ConnectionFactory.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                user.setId(rs.getInt(UT_ID));
+                user.setUsername(rs.getString(UT_USERNAME));
+                user.setPassword(rs.getString(UT_PASSWORD));
+                user.setRole(Role.valueOf(rs.getString(UT_ROLE)));
+                user.setFirstName(rs.getString(UT_FIRSTNAME));
+                user.setLastName(rs.getString(UT_LASTNAME));
+                user.setEmail(rs.getString(UT_EMAIL));
+                user.setPhoneNumber(rs.getString(UT_PHONE));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+        return Optional.of(user);
+    }
+
+    // UPDATE
+    public User updateUser(User user) {
+        User processedUser;
+        String sql =
+                "UPDATE " + UT_TABLENAME + " SET " +
+                        UT_ID + " = ?, " + //1
+                        UT_USERNAME + " = ?, " + //2
+                        UT_PASSWORD + " = ?, " + //3
+                        UT_ROLE + " = ?, " + //4
+                        UT_FIRSTNAME + " = ?, " + //5
+                        UT_LASTNAME + " = ?, " + //6
+                        UT_EMAIL + " = ? " + //7
+                        UT_PHONE + " = ? " + //8
+                        " WHERE " + UT_ID + " = ?"; // 9
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            // ID
+            pstmt.setInt(1, user.getId());
+            // Username
+            pstmt.setString(2, user.getUsername());
+            // Password
+            pstmt.setString(3, user.getPassword());
+            // Role
+            pstmt.setString(4, user.getRole().toString());
+            // First Name
+            pstmt.setString(5, user.getFirstName());
+            // Last Name
+            pstmt.setString(6, user.getLastName());
+            // Email
+            pstmt.setString(7, user.getEmail());
+            // Phone Number
+            pstmt.setString(8, user.getPhoneNumber());
+            // image
+//            pstmt.setString(9, unprocessedReimbursement.getResolver().getImage());
+
+
+            pstmt.setInt(9, user.getId());
+
+            pstmt.executeUpdate();
+            processedUser = getByID(user.getId()).get();
+
+            return processedUser;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
+    // DELETE
+    public boolean delete(int id) {
+        String sql = "DELETE FROM " + UT_TABLENAME + " WHERE " + UT_ID + " = ?";
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            pstmt.setInt(1, id);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean delete(String username) {
+        String sql = "DELETE FROM " + UT_TABLENAME + " WHERE " + UT_USERNAME + " = ?";
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            pstmt.setString(1, username);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 
     // HELPER METHODS
-    private void populateDBProperties() {
+    // Returns true if properties file is read in successfully, false otherwise
+    private boolean populateDBProperties() {
         Properties props = new Properties();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         InputStream input = loader.getResourceAsStream("reimbursements_table.properties");
@@ -119,7 +229,7 @@ public class UserDAO {
             e.printStackTrace();
             System.out.println("Using defaults due to properties load failure.");
             // just use the defaults
-            return;
+            return false;
         }
 
         UT_TABLENAME = props.getProperty("UT_TABLENAME");
@@ -131,6 +241,21 @@ public class UserDAO {
         UT_LASTNAME = props.getProperty("UT_LASTNAME");
         UT_EMAIL = props.getProperty("UT_EMAIL");
         UT_PHONE = props.getProperty("UT_PHONE");
+        return true;
     }
 
+    // Returns true if the table was created or already exists
+    private boolean createUserTable(String tableName) {
+        // TODO: Fix this
+        String sql = "";
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            pstmt.setString(1, UT_TABLENAME);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -132,19 +132,19 @@ public class ReimbursementDAO {
 
             while(rs.next()) {
                 Reimbursement rb = new Reimbursement();
-                rb.setId(rs.getInt("reimbursement_id"));
+                rb.setId(rs.getInt(RT_ID));
                 // enum
-                Status rbstatus = Status.valueOf(rs.getString("status").toUpperCase());
+                Status rbstatus = Status.valueOf(rs.getString(RT_STATUS).toUpperCase());
                 rb.setStatus(status);
 
                 // using the UserService class, we can get the user by the stored username.
-                rb.setAuthor(userService.getByUsername(rs.getString("author")).get());
-                rb.setResolver(userService.getByUsername(rs.getString("resolver")).get());
+                rb.setAuthor(userService.getByUsername(rs.getString(RT_AUTHOR)).get());
+                rb.setResolver(userService.getByUsername(rs.getString(RT_RESOLVER)).get());
 
-                rb.setAmount(rs.getDouble("amount"));
-                rb.setDescription(rs.getString("description"));
-                rb.setCreationDate(rs.getDate("creationDate"));
-                rb.setResolutionDate(rs.getDate("resolutionDate"));
+                rb.setAmount(rs.getDouble(RT_AMOUNT));
+                rb.setDescription(rs.getString(RT_DESCRIPTION));
+                rb.setCreationDate(rs.getDate(RT_CREATIONDATE));
+                rb.setResolutionDate(rs.getDate(RT_RESOLUTIONDATE));
                 // rb.setReceiptImageURL(rs.getString("receiptImageURL"));
 
                 reimbursementList.add(rb);
@@ -211,8 +211,7 @@ public class ReimbursementDAO {
      * </ul>
      */
     public Reimbursement update(Reimbursement unprocessedReimbursement) {
-        Optional<Reimbursement> processedReimbursement;
-        // TODO: verify reimbursement doesnt have null values?
+        Reimbursement processedReimbursement;
         String sql =
                 "UPDATE " + RT_NAME + " SET " +
                 RT_ID + " = ?, " + //1
@@ -249,9 +248,9 @@ public class ReimbursementDAO {
             pstmt.setInt(9, unprocessedReimbursement.getId());
 
             pstmt.executeUpdate();
-            processedReimbursement = getById(unprocessedReimbursement.getId());
+            processedReimbursement = getById(unprocessedReimbursement.getId()).get();
 
-            return processedReimbursement.get();
+            return processedReimbursement;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
