@@ -1,4 +1,5 @@
 package com.revature;
+import com.revature.services.AuthService;
 import com.revature.util.ConnectionFactory;
 
 import java.io.IOException;
@@ -15,4 +16,9 @@ public class Driver {
             e.printStackTrace();
         }
     }
+
+    /************
+     * TESTS
+     ************/
+
 }
