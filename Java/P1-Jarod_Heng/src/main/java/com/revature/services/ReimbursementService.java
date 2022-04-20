@@ -27,7 +27,11 @@ import java.util.List;
  */
 public class ReimbursementService {
 
-    ReimbursementDAO rdao = new ReimbursementDAO();
+    ReimbursementDAO rdao;
+
+    public ReimbursementService() {
+        this.rdao = new ReimbursementDAO();
+    }
 
     /**
      * <ul>

@@ -2,6 +2,7 @@ package com.revature.services;
 
 import java.util.Optional;
 
+import com.revature.exceptions.RegistrationUnsuccessfulException;
 import com.revature.models.User;
 import com.revature.repositories.UserDAO;
 
@@ -22,24 +23,62 @@ import com.revature.repositories.UserDAO;
  */
 public class UserService {
 
-	public static UserDAO ud;
+	public UserDAO ud;
 
 	public UserService() {
-
+		ud = new UserDAO();
 	}
 
-	public UserService(UserDAO vd) {
-
+	public UserService(UserDAO ud) {
+		this.ud = ud;
 	}
+
+	/**
+	 *  Create User
+	 */
+
+	public User createUser(User userToBeRegistered) throws RuntimeException {
+		User createdUser;
+		try {
+			createdUser = ud.create(userToBeRegistered);
+		} catch (RegistrationUnsuccessfulException e) {
+			throw e;
+		}
+		return createdUser;
+	}
+
+	/**
+	 * Change Things
+	 */
+	public User changePassword(String newPassword, User user) throws RuntimeException {
+		Optional<User> changedUser;
+
+		changedUser = ud.updatePassword(newPassword, user);
+		if (changedUser.isPresent())
+			return changedUser.get();
+		else
+			throw new RuntimeException();
+	}
+
+
 	/**
 	 *     Should retrieve a User with the corresponding username or an empty optional if there is no match.
      */
 	public Optional<User> getByUsername(String username) {
-		Optional<User> user = ud.getByUsername(username);
-		return user;
+		return ud.getByUsername(username);
+	}
+
+	public Optional<User> getByID(int id) {
+		return ud.getByID(id);
 	}
 
 	public Optional<User> getByEmailAddress(String emailAddress) {
-		return Optional.empty();
+		return ud.getByEmail(emailAddress);
 	}
+
+	public User getByUser(User user) {
+		return ud.getByID(user.getId()).get();
+	}
+
+
 }

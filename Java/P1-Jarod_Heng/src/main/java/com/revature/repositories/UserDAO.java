@@ -1,5 +1,6 @@
 package com.revature.repositories;
 
+import com.revature.exceptions.RegistrationUnsuccessfulException;
 import com.revature.models.Reimbursement;
 import com.revature.models.Role;
 import com.revature.models.User;
@@ -78,6 +79,7 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RegistrationUnsuccessfulException();
         }
 
         return userToBeRegistered;
@@ -112,12 +114,39 @@ public class UserDAO {
     }
 
     public Optional<User> getByID(int id) {
-        User user = new User();
+        User user;
         try {
             String SQL = "SELECT * FROM " + UT_TABLENAME + " WHERE " + UT_ID + " = ?";
             Connection conn = ConnectionFactory.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+            user = new User();
+
+            while (rs.next()) {
+                user.setId(rs.getInt(UT_ID));
+                user.setUsername(rs.getString(UT_USERNAME));
+                user.setPassword(rs.getString(UT_PASSWORD));
+                user.setRole(Role.valueOf(rs.getString(UT_ROLE)));
+                user.setFirstName(rs.getString(UT_FIRSTNAME));
+                user.setLastName(rs.getString(UT_LASTNAME));
+                user.setEmail(rs.getString(UT_EMAIL));
+                user.setPhoneNumber(rs.getString(UT_PHONE));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+        return Optional.ofNullable(user);
+    }
+
+    public Optional<User> getByEmail(String emailAddress) {
+        User user = new User();
+        try {
+            String SQL = "SELECT * FROM " + UT_TABLENAME + " WHERE " + UT_EMAIL + " = ?";
+            Connection conn = ConnectionFactory.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            pstmt.setString(1, emailAddress);
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
@@ -172,16 +201,41 @@ public class UserDAO {
             // image
 //            pstmt.setString(9, unprocessedReimbursement.getResolver().getImage());
 
-
             pstmt.setInt(9, user.getId());
 
             pstmt.executeUpdate();
+            // this may increase computational complexity and time needed to access
+            // remove in future?
             processedUser = getByID(user.getId()).get();
 
             return processedUser;
         } catch (SQLException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    public Optional<User> updatePassword(String password, User user) {
+        User processedUser;
+        String sql =
+                "UPDATE " + UT_TABLENAME + " SET " +
+                        UT_PASSWORD + " = ?, " + //3
+                        " WHERE " + UT_ID + " = ?"; // 9
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            // Password
+            pstmt.setString(1, password);
+            pstmt.setInt(2, user.getId());
+
+            pstmt.executeUpdate();
+            // this may increase computational complexity and time needed to access
+            // remove in future?
+            processedUser = getByID(user.getId()).get();
+
+            return Optional.of(processedUser);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
         }
     }
 
@@ -204,6 +258,19 @@ public class UserDAO {
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
             pstmt.setString(1, username);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean deleteByEmail(String email) {
+        String sql = "DELETE FROM " + UT_TABLENAME + " WHERE " + UT_EMAIL + " = ?";
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            pstmt.setString(1, email);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
@@ -262,4 +329,5 @@ public class UserDAO {
             return false;
         }
     }
+
 }

@@ -47,7 +47,7 @@ public class AuthServiceTest {
 		when(userService.getByUsername(anyString())).thenReturn(Optional.of(GENERIC_EMPLOYEE_1));
 		
 		assertThrows(UsernameNotUniqueException.class,
-			() -> authService.register(EMPLOYEE_TO_REGISTER)
+			() -> authService.Register(EMPLOYEE_TO_REGISTER)
 		);
 
 		verify(userService).getByUsername(EMPLOYEE_TO_REGISTER.getUsername());
@@ -59,7 +59,7 @@ public class AuthServiceTest {
 		when(userService.getByUsername(anyString())).thenReturn(Optional.empty());
 		when(userDAO.create(anyObject())).thenReturn(GENERIC_EMPLOYEE_1);
 		
-		assertEquals(GENERIC_EMPLOYEE_1, authService.register(EMPLOYEE_TO_REGISTER));
+		assertEquals(GENERIC_EMPLOYEE_1, authService.Register(EMPLOYEE_TO_REGISTER));
 
 		verify(userService).getByUsername(EMPLOYEE_TO_REGISTER.getUsername());
 		verify(userDAO).create(EMPLOYEE_TO_REGISTER);
@@ -70,7 +70,7 @@ public class AuthServiceTest {
 		when(userDAO.create(anyObject())).thenThrow(new RegistrationUnsuccessfulException());
 
 		assertThrows(RegistrationUnsuccessfulException.class,
-				() -> authService.register(EMPLOYEE_TO_REGISTER)
+				() -> authService.Register(EMPLOYEE_TO_REGISTER)
 		);
 	}
 
@@ -79,7 +79,7 @@ public class AuthServiceTest {
 		EMPLOYEE_TO_REGISTER.setId(1000);
 
 		assertThrows(NewUserHasNonZeroIdException.class,
-				() -> authService.register(EMPLOYEE_TO_REGISTER)
+				() -> authService.Register(EMPLOYEE_TO_REGISTER)
 		);
 	}
 
@@ -87,7 +87,7 @@ public class AuthServiceTest {
 	public void testLoginPassesWhenUsernameDoesExistAndPasswordMatches() {
 		when(userService.getByUsername(anyString())).thenReturn(Optional.of(GENERIC_EMPLOYEE_1));
 
-		assertEquals(GENERIC_EMPLOYEE_1, authService.login(GENERIC_EMPLOYEE_1.getUsername(), GENERIC_EMPLOYEE_1.getPassword()));
+		assertEquals(GENERIC_EMPLOYEE_1, authService.Login(GENERIC_EMPLOYEE_1.getUsername(), GENERIC_EMPLOYEE_1.getPassword()));
 
 		verify(userService).getByUsername(EMPLOYEE_TO_REGISTER.getUsername());
 	}
