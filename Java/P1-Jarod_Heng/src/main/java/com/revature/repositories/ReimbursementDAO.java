@@ -39,13 +39,14 @@ public class ReimbursementDAO {
      * Constructors
      ******************************************************************/
     public ReimbursementDAO(String reimbursementsTableName) {
-        this();
+        populateDBProperties();
         // OVERRIDE THE PROPERTIES FILE FOR THE TABLE NAME
-        this.createReimbursementTable(reimbursementsTableName);
+        createReimbursementTable(reimbursementsTableName);
     }
 
     public ReimbursementDAO() {
         populateDBProperties();
+        this.createReimbursementTable(this.RT_NAME);
     }
 
     /*******************************************************************
@@ -376,7 +377,7 @@ public class ReimbursementDAO {
         RT_DESCRIPTION = props.getProperty("RT_DESCRIPTION");
         RT_CREATIONDATE = props.getProperty("RT_CREATIONDATE");
         RT_RESOLUTIONDATE = props.getProperty("RT_RESOLUTIONDATE");
-        RT_RESOLUTIONDATE = props.getProperty("RT_IMAGE");
+//        RT_RESOLUTIONDATE = props.getProperty("RT_IMAGE");
         return true;
     }
 
@@ -392,9 +393,9 @@ public class ReimbursementDAO {
 	                    RT_DESCRIPTION + " varchar(500)," +
 	                    RT_CREATIONDATE + " varchar(50) NOT NULL," +
 	                    RT_RESOLUTIONDATE + " varchar(50) );";
+        // System.out.println("Create Reimbursement Table sql string: " + sql);
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
-            pstmt.setString(1, RT_NAME);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {

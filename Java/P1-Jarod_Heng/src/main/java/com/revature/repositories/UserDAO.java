@@ -92,15 +92,17 @@ public class UserDAO {
      * Should retrieve a User from the DB with the corresponding username or an empty optional if there is no match.
      */
     public Optional<User> getByUsername(String username) {
-        User user = new User();
+
         try {
+            User user;
             String SQL = "SELECT * FROM " + UT_TABLENAME + " WHERE " + UT_USERNAME + " = ?";
             Connection conn = ConnectionFactory.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(SQL);
             pstmt.setString(1, username);
             ResultSet rs = pstmt.executeQuery();
 
-            while (rs.next()) {
+            if (rs.next()) {
+                user = new User();
                 user.setId(rs.getInt(UT_ID));
                 user.setUsername(rs.getString(UT_USERNAME));
                 user.setPassword(rs.getString(UT_PASSWORD));
@@ -109,12 +111,13 @@ public class UserDAO {
                 user.setLastName(rs.getString(UT_LASTNAME));
                 user.setEmail(rs.getString(UT_EMAIL));
                 user.setPhoneNumber(rs.getString(UT_PHONE));
+                return Optional.of(user);
             }
+            return Optional.empty();
         } catch (SQLException e) {
             e.printStackTrace();
             return Optional.empty();
         }
-        return Optional.of(user);
     }
 
     public Optional<User> getByID(int id) {
@@ -145,7 +148,7 @@ public class UserDAO {
     }
 
     public Optional<User> getByEmail(String emailAddress) {
-        User user = new User();
+        User user = null;
         try {
             String SQL = "SELECT * FROM " + UT_TABLENAME + " WHERE " + UT_EMAIL + " = ?";
             Connection conn = ConnectionFactory.getInstance().getConnection();
@@ -154,6 +157,7 @@ public class UserDAO {
             ResultSet rs = pstmt.executeQuery();
 
             while (rs.next()) {
+                user = new User();
                 user.setId(rs.getInt(UT_ID));
                 user.setUsername(rs.getString(UT_USERNAME));
                 user.setPassword(rs.getString(UT_PASSWORD));
@@ -167,7 +171,7 @@ public class UserDAO {
             e.printStackTrace();
             return Optional.empty();
         }
-        return Optional.of(user);
+        return Optional.ofNullable(user);
     }
 
     // UPDATE
@@ -354,7 +358,7 @@ public class UserDAO {
 	                    UT_LASTNAME + " varchar(50), " +
 	                    UT_EMAIL + " varchar(100) unique, " +
 	                    UT_PHONE + " varchar(16) );";
-        System.out.println("Create User Table sql string: " + sql);
+        // System.out.println("Create User Table sql string: " + sql);
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
 //            pstmt.setString(1, UT_TABLENAME);

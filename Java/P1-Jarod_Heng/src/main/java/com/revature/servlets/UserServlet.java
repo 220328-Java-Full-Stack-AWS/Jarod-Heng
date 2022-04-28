@@ -30,16 +30,22 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         // register
+        // error checking is assumed to already have been done
         String username = req.getHeader("username");
-        String password, firstname, lastname, email, phone;
+        String password, role, firstname, lastname, email, phone;
+
+        //String db_name;
 
         password = req.getHeader("password");
+        role = req.getHeader("role");
         firstname = req.getHeader("firstname");
         lastname = req.getHeader("lastname");
         email = req.getHeader("email");
         phone = req.getHeader("phone");
 
-        User userToRegister = new User(0, username, password, Role.EMPLOYEE, firstname, lastname, email, phone);
+        // db_name = req.getHeader("db_name");
+
+        User userToRegister = new User(0, username, password, Role.valueOf(role.toUpperCase()), firstname, lastname, email, phone);
 
         try {
             User newUser = AuthService.Register(userToRegister);
@@ -50,7 +56,6 @@ public class UserServlet extends HttpServlet {
             resp.setStatus(401);
             throw new ServletException(e.getMessage());
         }
-
 
     }
 

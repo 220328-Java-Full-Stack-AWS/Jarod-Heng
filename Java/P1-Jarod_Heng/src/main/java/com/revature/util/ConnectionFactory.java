@@ -39,6 +39,11 @@ public class ConnectionFactory {
      * <p>Typically, this is accomplished via the use of the {@link java.sql.DriverManager} class.</p>
      */
     public Connection getConnection() {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         /*
         jdbc:postgresql://hostname:port/databaseName//?currentSchema=schemaName
         This is the string we need to use to connect to our database. We will build this string with each of the

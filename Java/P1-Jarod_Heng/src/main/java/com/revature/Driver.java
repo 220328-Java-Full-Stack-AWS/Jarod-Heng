@@ -1,5 +1,6 @@
 package com.revature;
 import com.revature.exceptions.RegistrationUnsuccessfulException;
+import com.revature.models.Reimbursement;
 import com.revature.models.Role;
 import com.revature.models.User;
 import com.revature.repositories.ReimbursementDAO;
@@ -17,11 +18,12 @@ import java.util.Optional;
 public class Driver {
 
     public static void main(String[] args) {
-//        UserDAOtest1(false);
+        UserDAOtest1(false);
 //        UserDAOtest1(true);
 
-        UserServiceTest();
+//        UserServiceTest();
 
+//        basicCreateReimbursement();
     }
 
     /************
@@ -133,6 +135,17 @@ public class Driver {
         }
 
     }
+
+    static void basicCreateReimbursement() {
+        ReimbursementService rs1 = new ReimbursementService();
+        Reimbursement testReimb = new Reimbursement();
+        try { // should fail cuz several null values
+            rs1.createReimbursement(testReimb);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /*
      * User Stories Tests - no postman

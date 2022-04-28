@@ -76,7 +76,7 @@ public class AuthService {
         // userToBeRegistered.getUsername() check uniqueness through DB
         // if the username isnt unique, throw exception
         if(userService.getByUsername(userToBeRegistered.getUsername()).isPresent()){
-            throw new UsernameNotUniqueException();
+            throw new UsernameNotUniqueException("ERROR: username " + userToBeRegistered.getUsername() + " taken");
         }
 
         // userToBeRegistered.getUsername() check uniqueness through DB
