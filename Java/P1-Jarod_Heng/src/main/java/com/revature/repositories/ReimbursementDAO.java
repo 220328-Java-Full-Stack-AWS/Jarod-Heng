@@ -2,6 +2,7 @@ package com.revature.repositories;
 
 import com.revature.models.Reimbursement;
 import com.revature.models.Status;
+import com.revature.models.User;
 import com.revature.services.UserService;
 import com.revature.util.ConnectionFactory;
 
@@ -99,7 +100,6 @@ public class ReimbursementDAO {
 
             while (rs.next()) {
                 reimbursement.setId(rs.getInt(RT_ID));
-                // TODO: change to handle enum instead of string
                 reimbursement.setStatus(Status.valueOf(rs.getString(RT_STATUS)));
 
                 // TODO: add handling of error related to getbyusername
@@ -123,11 +123,10 @@ public class ReimbursementDAO {
     public List<Reimbursement> getByStatus(Status status) {
         List<Reimbursement> reimbursementList = new ArrayList<>();
         try {
-            // TODO: change test_table to name of table in DB
             String SQL = "SELECT * FROM " + RT_NAME + " WHERE " + RT_STATUS + " = ?";
             Connection conn = ConnectionFactory.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(SQL);
-
+            pstmt.setString(1, status.toString());
             ResultSet rs = pstmt.executeQuery();
 
             while(rs.next()) {
@@ -135,7 +134,7 @@ public class ReimbursementDAO {
                 rb.setId(rs.getInt(RT_ID));
                 // enum
                 Status rbstatus = Status.valueOf(rs.getString(RT_STATUS).toUpperCase());
-                rb.setStatus(status);
+                rb.setStatus(rbstatus);
 
                 // using the UserService class, we can get the user by the stored username.
                 rb.setAuthor(userService.getByUsername(rs.getString(RT_AUTHOR)).get());
@@ -150,6 +149,78 @@ public class ReimbursementDAO {
                 reimbursementList.add(rb);
             }
 
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return reimbursementList;
+    }
+
+    public List<Reimbursement> getByAuthor(User author) {
+        List<Reimbursement> reimbursementList = new ArrayList<>();
+        try {
+            String SQL = "SELECT * FROM " + RT_NAME + " WHERE " + RT_AUTHOR + " = ?";
+            Connection conn = ConnectionFactory.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            pstmt.setString(1, author.getUsername());
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                Reimbursement rb = new Reimbursement();
+                rb.setId(rs.getInt(RT_ID));
+                // enum
+                Status rbstatus = Status.valueOf(rs.getString(RT_STATUS).toUpperCase());
+                rb.setStatus(rbstatus);
+
+                // using the UserService class, we can get the user by the stored username.
+                rb.setAuthor(userService.getByUsername(rs.getString(RT_AUTHOR)).get());
+                rb.setResolver(userService.getByUsername(rs.getString(RT_RESOLVER)).get());
+
+                rb.setAmount(rs.getDouble(RT_AMOUNT));
+                rb.setDescription(rs.getString(RT_DESCRIPTION));
+                rb.setCreationDate(rs.getDate(RT_CREATIONDATE));
+                rb.setResolutionDate(rs.getDate(RT_RESOLUTIONDATE));
+                // rb.setReceiptImageURL(rs.getString("receiptImageURL"));
+
+                reimbursementList.add(rb);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return reimbursementList;
+    }
+
+    public List<Reimbursement> getByResolver(User resolver) {
+        List<Reimbursement> reimbursementList = new ArrayList<>();
+        try {
+            String SQL = "SELECT * FROM " + RT_NAME + " WHERE " + RT_RESOLVER + " = ?";
+            Connection conn = ConnectionFactory.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(SQL);
+            pstmt.setString(1, resolver.getUsername());
+
+            ResultSet rs = pstmt.executeQuery();
+
+            while(rs.next()) {
+                Reimbursement rb = new Reimbursement();
+                rb.setId(rs.getInt(RT_ID));
+                // enum
+                Status rbstatus = Status.valueOf(rs.getString(RT_STATUS).toUpperCase());
+                rb.setStatus(rbstatus);
+
+                // using the UserService class, we can get the user by the stored username.
+                rb.setAuthor(userService.getByUsername(rs.getString(RT_AUTHOR)).get());
+                rb.setResolver(userService.getByUsername(rs.getString(RT_RESOLVER)).get());
+
+                rb.setAmount(rs.getDouble(RT_AMOUNT));
+                rb.setDescription(rs.getString(RT_DESCRIPTION));
+                rb.setCreationDate(rs.getDate(RT_CREATIONDATE));
+                rb.setResolutionDate(rs.getDate(RT_RESOLUTIONDATE));
+                // rb.setReceiptImageURL(rs.getString("receiptImageURL"));
+
+                reimbursementList.add(rb);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -193,7 +264,6 @@ public class ReimbursementDAO {
 
                 list.add(rb);
             }
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -313,7 +383,7 @@ public class ReimbursementDAO {
     // Returns true if the table was created or already exists
     private boolean createReimbursementTable(String tableName) {
         this.RT_NAME = tableName;
-        String sql = "CREATE TABLE IF NOT EXISTS reimbursements_db(" +
+        String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
                         RT_ID + " serial PRIMARY KEY," +
                         RT_STATUS + " varchar(20) NOT NULL," +
                         RT_AUTHOR + " varchar(50) NOT NULL," +

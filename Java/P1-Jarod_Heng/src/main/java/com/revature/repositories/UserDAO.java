@@ -1,17 +1,18 @@
 package com.revature.repositories;
 
 import com.revature.exceptions.RegistrationUnsuccessfulException;
-import com.revature.models.Reimbursement;
 import com.revature.models.Role;
 import com.revature.models.User;
 import com.revature.util.ConnectionFactory;
 
+import javax.swing.text.html.Option;
 import java.io.InputStream;
 import java.sql.*;
 import java.util.Optional;
 import java.util.Properties;
 
 public class UserDAO {
+
 
     /** Column Names in Database "users" - static implementation
      * user_id
@@ -38,8 +39,10 @@ public class UserDAO {
      ******************************************************************/
     public UserDAO(String userTableName) {
         this();
+        UT_TABLENAME = userTableName;
+
         // OVERRIDE THE PROPERTIES FILE FOR THE TABLE NAME
-        this.createUserTable(userTableName);
+        createUserTable(userTableName);
     }
 
     public UserDAO() {
@@ -55,21 +58,22 @@ public class UserDAO {
      */
     public User create(User userToBeRegistered) {
         String sql = "INSERT INTO " + UT_TABLENAME
-                + " (" + UT_USERNAME + ","  + UT_PASSWORD + ","
-                + "," + UT_ROLE + "," + UT_FIRSTNAME + "," + UT_LASTNAME + ","
-                + UT_EMAIL + "," + UT_PHONE + ","
+                + " (" + UT_USERNAME + ", "  + UT_PASSWORD + ", "
+                + UT_ROLE + ", " + UT_FIRSTNAME + ", " + UT_LASTNAME + ", "
+                + UT_EMAIL + ", " + UT_PHONE + ""
                 +") VALUES (?,?,?,?,?,?,?)";
+//        System.out.println("create method SQL string " + sql);
 
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pstmt.setInt(1, userToBeRegistered.getId());
-            pstmt.setString(2, userToBeRegistered.getUsername());
-            pstmt.setString(3, userToBeRegistered.getPassword());
-            pstmt.setString(4, userToBeRegistered.getRole().toString());
-            pstmt.setString(5, userToBeRegistered.getFirstName());
-            pstmt.setString(6, userToBeRegistered.getLastName());
-            pstmt.setString(7, userToBeRegistered.getEmail());
-            pstmt.setString(8, userToBeRegistered.getPhoneNumber());
+//            pstmt.setInt(1, userToBeRegistered.getId());
+            pstmt.setString(1, userToBeRegistered.getUsername());
+            pstmt.setString(2, userToBeRegistered.getPassword());
+            pstmt.setString(3, userToBeRegistered.getRole().toString());
+            pstmt.setString(4, userToBeRegistered.getFirstName());
+            pstmt.setString(5, userToBeRegistered.getLastName());
+            pstmt.setString(6, userToBeRegistered.getEmail());
+            pstmt.setString(7, userToBeRegistered.getPhoneNumber());
             pstmt.executeUpdate();
 
             ResultSet keys = pstmt.getGeneratedKeys();
@@ -79,7 +83,7 @@ public class UserDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            throw new RegistrationUnsuccessfulException();
+            throw new RegistrationUnsuccessfulException(e.getMessage());
         }
 
         return userToBeRegistered;
@@ -100,7 +104,7 @@ public class UserDAO {
                 user.setId(rs.getInt(UT_ID));
                 user.setUsername(rs.getString(UT_USERNAME));
                 user.setPassword(rs.getString(UT_PASSWORD));
-                user.setRole(Role.valueOf(rs.getString(UT_ROLE)));
+                user.setRole(Role.valueOf(rs.getString(UT_ROLE).toUpperCase()));
                 user.setFirstName(rs.getString(UT_FIRSTNAME));
                 user.setLastName(rs.getString(UT_LASTNAME));
                 user.setEmail(rs.getString(UT_EMAIL));
@@ -127,7 +131,7 @@ public class UserDAO {
                 user.setId(rs.getInt(UT_ID));
                 user.setUsername(rs.getString(UT_USERNAME));
                 user.setPassword(rs.getString(UT_PASSWORD));
-                user.setRole(Role.valueOf(rs.getString(UT_ROLE)));
+                user.setRole(Role.valueOf(rs.getString(UT_ROLE).toUpperCase()));
                 user.setFirstName(rs.getString(UT_FIRSTNAME));
                 user.setLastName(rs.getString(UT_LASTNAME));
                 user.setEmail(rs.getString(UT_EMAIL));
@@ -153,7 +157,7 @@ public class UserDAO {
                 user.setId(rs.getInt(UT_ID));
                 user.setUsername(rs.getString(UT_USERNAME));
                 user.setPassword(rs.getString(UT_PASSWORD));
-                user.setRole(Role.valueOf(rs.getString(UT_ROLE)));
+                user.setRole(Role.valueOf(rs.getString(UT_ROLE).toUpperCase()));
                 user.setFirstName(rs.getString(UT_FIRSTNAME));
                 user.setLastName(rs.getString(UT_LASTNAME));
                 user.setEmail(rs.getString(UT_EMAIL));
@@ -167,11 +171,11 @@ public class UserDAO {
     }
 
     // UPDATE
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
         User processedUser;
         String sql =
                 "UPDATE " + UT_TABLENAME + " SET " +
-                        UT_ID + " = ?, " + //1
+//                        UT_ID + " = ?, " + //1
                         UT_USERNAME + " = ?, " + //2
                         UT_PASSWORD + " = ?, " + //3
                         UT_ROLE + " = ?, " + //4
@@ -183,48 +187,75 @@ public class UserDAO {
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
             // ID
-            pstmt.setInt(1, user.getId());
+//            pstmt.setInt(1, user.getId());
             // Username
-            pstmt.setString(2, user.getUsername());
+            pstmt.setString(1, user.getUsername());
             // Password
-            pstmt.setString(3, user.getPassword());
+            pstmt.setString(2, user.getPassword());
             // Role
-            pstmt.setString(4, user.getRole().toString());
+            pstmt.setString(3, user.getRole().toString());
             // First Name
-            pstmt.setString(5, user.getFirstName());
+            pstmt.setString(4, user.getFirstName());
             // Last Name
-            pstmt.setString(6, user.getLastName());
+            pstmt.setString(5, user.getLastName());
             // Email
-            pstmt.setString(7, user.getEmail());
+            pstmt.setString(6, user.getEmail());
             // Phone Number
-            pstmt.setString(8, user.getPhoneNumber());
+            pstmt.setString(7, user.getPhoneNumber());
             // image
 //            pstmt.setString(9, unprocessedReimbursement.getResolver().getImage());
 
-            pstmt.setInt(9, user.getId());
+            pstmt.setInt(8, user.getId());
 
             pstmt.executeUpdate();
             // this may increase computational complexity and time needed to access
             // remove in future?
             processedUser = getByID(user.getId()).get();
 
-            return processedUser;
+            return Optional.of(processedUser);
         } catch (SQLException e) {
             e.printStackTrace();
-            return null;
+            return Optional.empty();
         }
     }
 
+    // TODO CHANGE RETURN TYPES TO VOID IN DAO, let userservice handle returns with getuser functions
     public Optional<User> updatePassword(String password, User user) {
-        User processedUser;
+        Optional<User> processedUser;
         String sql =
                 "UPDATE " + UT_TABLENAME + " SET " +
-                        UT_PASSWORD + " = ?, " + //3
+                        UT_PASSWORD + " = ?" + //3
                         " WHERE " + UT_ID + " = ?"; // 9
+        System.out.println(sql);
+        System.out.println("'" + password + "'");
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
             // Password
             pstmt.setString(1, password);
+            pstmt.setInt(2, user.getId());
+
+            pstmt.executeUpdate();
+            // this may increase computational complexity and time needed to access
+            // remove in future?
+            processedUser = getByID(user.getId());
+
+            return processedUser;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return Optional.empty();
+        }
+    }
+
+    public Optional<User> updateRole(Role newRole, User user) {
+        User processedUser;
+        String sql =
+                "UPDATE " + UT_TABLENAME + " SET " +
+                        UT_ROLE + " = ?, " + //3
+                        " WHERE " + UT_ID + " = ?"; // 9
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            // Password
+            pstmt.setString(1, newRole.toString());
             pstmt.setInt(2, user.getId());
 
             pstmt.executeUpdate();
@@ -267,6 +298,9 @@ public class UserDAO {
     }
 
     public boolean deleteByEmail(String email) {
+        if (email == null)
+            return false;
+
         String sql = "DELETE FROM " + UT_TABLENAME + " WHERE " + UT_EMAIL + " = ?";
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
@@ -283,9 +317,10 @@ public class UserDAO {
     // HELPER METHODS
     // Returns true if properties file is read in successfully, false otherwise
     private boolean populateDBProperties() {
+        createUserTable(this.UT_TABLENAME);
         Properties props = new Properties();
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        InputStream input = loader.getResourceAsStream("reimbursements_table.properties");
+        InputStream input = loader.getResourceAsStream("users_table.properties");
         try {
             props.load(input);
         } catch (Exception e) {
@@ -308,26 +343,44 @@ public class UserDAO {
     }
 
     // Returns true if the table was created or already exists
-    private boolean createUserTable(String tableName) {
-        UT_TABLENAME = tableName;
+    public static boolean createUserTable(String tableName) {
+//        UT_TABLENAME = tableName;
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(" +
-                        UT_ID + " serial PRIMARY KEY," +
-                        UT_USERNAME + " varchar(50) NOT NULL unique," +
-                        UT_PASSWORD + " varchar(50) NOT NULL," +
-	                    UT_ROLE + " varchar(50), NOT NULL" +
-	                    UT_FIRSTNAME + " varchar(50)," +
-	                    UT_LASTNAME + " varchar(50)," +
-	                    UT_EMAIL + " varchar(100) NOT NULL unique," +
+                        UT_ID + " serial PRIMARY KEY, " +
+                        UT_USERNAME + " varchar(50) NOT NULL unique, " +
+                        UT_PASSWORD + " varchar(50) NOT NULL, " +
+	                    UT_ROLE + " varchar(30) NOT NULL, " +
+	                    UT_FIRSTNAME + " varchar(50), " +
+	                    UT_LASTNAME + " varchar(50), " +
+	                    UT_EMAIL + " varchar(100) unique, " +
 	                    UT_PHONE + " varchar(16) );";
+        System.out.println("Create User Table sql string: " + sql);
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
-            pstmt.setString(1, UT_TABLENAME);
+//            pstmt.setString(1, UT_TABLENAME);
             pstmt.executeUpdate();
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static boolean deleteUserTable(String tableName) {
+        String sql = "drop table " + tableName + ";";
+        System.out.println("Delete User Table sql string: " + sql);
+        try {
+            PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql);
+            pstmt.executeUpdate();
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public String getUT_TABLENAME() {
+        return UT_TABLENAME;
     }
 
 }

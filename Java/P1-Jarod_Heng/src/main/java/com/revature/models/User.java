@@ -31,7 +31,7 @@ public class User extends AbstractUser {
     public User(int id, String username, String password, Role role) {
         super(id, username, password, role);
     }
-    public User(int id, String username, String password, Role role, String fName,String lName,String email, String phoneNumber,String address) {
+    public User(int id, String username, String password, Role role, String fName,String lName,String email, String phoneNumber) {
         super(id, username, password, role);
         this.firstName = fName;
         this.lastName = lName;
@@ -89,10 +89,11 @@ public class User extends AbstractUser {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", role=" + role + "firstname=" + firstName +
+                ", role='" + role +  '\''  +
+                ", firstname='" + firstName + '\'' +
                 ", lastname='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", phonenum=" + phoneNumber +
+                ", phonenum='" + phoneNumber + '\'' +
 
                 '}';
     }

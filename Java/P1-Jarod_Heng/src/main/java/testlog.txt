@@ -1,0 +1,12 @@
+successful tests:
+UserDAO:
+    both constructors and helper methods
+        (populateDBProperties and createUserTable)
+    create
+    getByUserName
+    getByID
+    getByEmail
+    ___updateUser NOT TESTED___
+
+
+

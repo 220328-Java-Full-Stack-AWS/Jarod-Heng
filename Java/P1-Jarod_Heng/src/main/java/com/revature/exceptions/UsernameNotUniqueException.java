@@ -3,7 +3,7 @@ package com.revature.exceptions;
 public class UsernameNotUniqueException extends RuntimeException {
 
     public UsernameNotUniqueException() {
-        super();
+        super("ERROR: Username taken");
     }
 
     public UsernameNotUniqueException(String message) {

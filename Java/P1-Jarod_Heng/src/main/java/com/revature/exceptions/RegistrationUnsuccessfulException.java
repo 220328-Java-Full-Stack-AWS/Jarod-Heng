@@ -3,7 +3,7 @@ package com.revature.exceptions;
 public class RegistrationUnsuccessfulException extends RuntimeException {
 
     public RegistrationUnsuccessfulException() {
-        super();
+        super("ERROR: Registration unsuccessful");
     }
 
     public RegistrationUnsuccessfulException(String message) {

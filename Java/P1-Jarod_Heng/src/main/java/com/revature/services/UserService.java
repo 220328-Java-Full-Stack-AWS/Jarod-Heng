@@ -3,6 +3,7 @@ package com.revature.services;
 import java.util.Optional;
 
 import com.revature.exceptions.RegistrationUnsuccessfulException;
+import com.revature.models.Role;
 import com.revature.models.User;
 import com.revature.repositories.UserDAO;
 
@@ -54,6 +55,16 @@ public class UserService {
 		Optional<User> changedUser;
 
 		changedUser = ud.updatePassword(newPassword, user);
+		if (changedUser.isPresent())
+			return changedUser.get();
+		else
+			throw new RuntimeException("Changing password of user " + user.getUsername() + " failed.");
+	}
+
+	public User changeRole(Role newRole, User user) throws RuntimeException {
+		Optional<User> changedUser;
+
+		changedUser = ud.updateRole(newRole, user);
 		if (changedUser.isPresent())
 			return changedUser.get();
 		else

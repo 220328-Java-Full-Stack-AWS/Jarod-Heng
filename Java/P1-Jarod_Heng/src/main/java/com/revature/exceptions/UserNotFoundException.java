@@ -3,7 +3,7 @@ package com.revature.exceptions;
 public class UserNotFoundException extends RuntimeException {
 
     public UserNotFoundException() {
-        super("Error: Username Not Found");
+        super("ERROR: User Not Found");
     }
 
     public UserNotFoundException(String message) {

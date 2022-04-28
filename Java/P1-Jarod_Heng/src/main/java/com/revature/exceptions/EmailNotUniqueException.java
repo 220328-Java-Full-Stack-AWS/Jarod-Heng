@@ -3,7 +3,7 @@ package com.revature.exceptions;
 public class EmailNotUniqueException extends RuntimeException {
 
     public EmailNotUniqueException() {
-        super();
+        super("ERROR: Email already in use.");
     }
 
     public EmailNotUniqueException(String message) {

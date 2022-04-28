@@ -3,7 +3,7 @@ package com.revature.exceptions;
 public class PasswordDoesNotMatch extends RuntimeException {
 
     public PasswordDoesNotMatch() {
-        super("Error: Password Does Not Match.");
+        super("ERROR: Password Does Not Match.");
     }
 
     public PasswordDoesNotMatch(String message) {

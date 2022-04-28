@@ -20,8 +20,8 @@ import java.util.Optional;
  */
 public class AuthService {
 
-    UserService userService;
-    User currentUser;
+    public UserService userService;
+    public static User currentUser;
 
     public AuthService() {
         this.userService = new UserService();
@@ -37,7 +37,7 @@ public class AuthService {
      *     <li>Must return user object if the user logs in successfully.</li>
      * </ul>
      */
-    public User Login(String username, String password) throws RuntimeException {
+    public static User Login(String username, String password) throws RuntimeException {
         UserService userService = new UserService();
         Optional<User> user = userService.getByUsername(username);
         if(user.isPresent()) {
@@ -69,7 +69,8 @@ public class AuthService {
      * Note: userToBeRegistered will have an id=0, additional fields may be null.
      * After registration, the id will be a positive integer.
      */
-    public User Register(User userToBeRegistered) throws RuntimeException {
+    public static User Register(User userToBeRegistered) throws RuntimeException {
+        UserService userService = new UserService();
         User newUser;
 
         // userToBeRegistered.getUsername() check uniqueness through DB
@@ -90,11 +91,7 @@ public class AuthService {
 
         // now we know the username is unique, and we can register the user and get a newID
         // if registration was unsuccessful, throws RegistrationUnsuccessfulException();
-        try {
-            userService.createUser(userToBeRegistered);
-        } catch (RegistrationUnsuccessfulException e) {
-            throw e;
-        }
+        userService.createUser(userToBeRegistered);
 
         //verify presence in the database
         try {

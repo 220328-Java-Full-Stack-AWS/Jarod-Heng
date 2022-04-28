@@ -28,7 +28,7 @@ public enum Role {
     FINANCE_MANAGER {
         @Override
         public String toString() {
-            return "Finance Manager";
+            return "Finance_Manager";
         }
     }
 

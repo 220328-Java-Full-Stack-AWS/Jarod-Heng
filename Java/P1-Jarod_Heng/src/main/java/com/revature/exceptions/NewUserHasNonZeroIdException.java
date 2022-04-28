@@ -3,7 +3,7 @@ package com.revature.exceptions;
 public class NewUserHasNonZeroIdException extends RuntimeException {
 
     public NewUserHasNonZeroIdException() {
-        super();
+        super("ERROR: New user has nonzero ID");
     }
 
     public NewUserHasNonZeroIdException(String message) {
