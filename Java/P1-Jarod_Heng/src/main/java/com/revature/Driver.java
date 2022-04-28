@@ -2,6 +2,7 @@ package com.revature;
 import com.revature.exceptions.RegistrationUnsuccessfulException;
 import com.revature.models.Reimbursement;
 import com.revature.models.Role;
+import com.revature.models.Status;
 import com.revature.models.User;
 import com.revature.repositories.ReimbursementDAO;
 import com.revature.repositories.UserDAO;
@@ -12,18 +13,21 @@ import com.revature.util.ConnectionFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.util.Calendar;
 import java.util.Optional;
 
 public class Driver {
 
     public static void main(String[] args) {
-        UserDAOtest1(false);
+//        UserDAOtest1(false);
 //        UserDAOtest1(true);
 
 //        UserServiceTest();
 
 //        basicCreateReimbursement();
+        aCreateReimbursement();
     }
 
     /************
@@ -146,11 +150,18 @@ public class Driver {
         }
     }
 
+    static void aCreateReimbursement() {
+        ReimbursementService rs1 = new ReimbursementService();
+        User author = AuthService.Login("jimmy", "jimmyjim");
+        Reimbursement testReimb = new Reimbursement(0, Status.PENDING, author, (User) null, 69.99, "Frog Noodle Soup", new Date(122,4,28), null, "");
+        try {
+            rs1.createReimbursement(testReimb);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-    /*
-     * User Stories Tests - no postman
-     *
-     *
-     */
+        System.out.println(rs1.getReimbursementsByAuthor(author));
+    }
+
 
 }

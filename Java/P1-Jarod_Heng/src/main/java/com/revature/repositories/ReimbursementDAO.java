@@ -57,19 +57,33 @@ public class ReimbursementDAO {
     public Reimbursement createReimbursement(Reimbursement rb) {
         String sql = "INSERT INTO " + RT_NAME
                                     + " (" + RT_STATUS + ","  + RT_AUTHOR + ","
-                                    + "," + RT_RESOLVER + "," + RT_AMOUNT + "," + RT_DESCRIPTION + ","
-                                    + RT_CREATIONDATE + "," + RT_RESOLUTIONDATE + ","
+                                    + RT_RESOLVER + "," + RT_AMOUNT + ","
+                                    + RT_DESCRIPTION + ","
+                                    + RT_CREATIONDATE + "," + RT_RESOLUTIONDATE
                                     +") VALUES (?,?,?,?,?,?,?)";
         try {
             PreparedStatement pstmt = ConnectionFactory.getInstance().getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            pstmt.setInt(1, rb.getId());
-            pstmt.setString(2, rb.getStatus().toString());
-            pstmt.setString(3, rb.getAuthor().getUsername());
-            pstmt.setString(4, rb.getResolver().getUsername());
-            pstmt.setDouble(5, rb.getAmount());
-            pstmt.setString(6, rb.getDescription());
-            pstmt.setString(7, rb.getCreationDate().toString());
-            pstmt.setString(8, rb.getResolutionDate().toString());
+//            pstmt.setInt(1, rb.getId());
+            pstmt.setString(1, rb.getStatus().toString());
+            pstmt.setString(2, rb.getAuthor().getUsername());
+
+            String resolver;
+            if (rb.getResolver() != null) {
+                resolver = rb.getResolver().getUsername();
+            } else {
+                resolver = null;
+            }
+            pstmt.setString(3, resolver);
+            pstmt.setDouble(4, rb.getAmount());
+            pstmt.setString(5, rb.getDescription());
+            pstmt.setString(6, rb.getCreationDate().toString());
+            String resolutionDate;
+            if(rb.getResolutionDate() != null) {
+                resolutionDate = rb.getResolutionDate().toString();
+            } else {
+                resolutionDate = null;
+            }
+            pstmt.setString(7, resolutionDate);
             pstmt.executeUpdate();
 
             ResultSet keys = pstmt.getGeneratedKeys();
@@ -176,7 +190,12 @@ public class ReimbursementDAO {
 
                 // using the UserService class, we can get the user by the stored username.
                 rb.setAuthor(userService.getByUsername(rs.getString(RT_AUTHOR)).get());
-                rb.setResolver(userService.getByUsername(rs.getString(RT_RESOLVER)).get());
+
+                if (userService.getByUsername(rs.getString(RT_RESOLVER)).isPresent()) {
+                    rb.setResolver(userService.getByUsername(rs.getString(RT_RESOLVER)).get());
+                } else {
+                    rb.setResolver(null);
+                }
 
                 rb.setAmount(rs.getDouble(RT_AMOUNT));
                 rb.setDescription(rs.getString(RT_DESCRIPTION));
